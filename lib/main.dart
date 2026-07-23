@@ -12,6 +12,7 @@ import 'screens/info/faq_screen.dart';
 import 'screens/info/contact_screen.dart';
 import 'screens/info/emergency_screen.dart';
 import 'screens/info/admin_inbox_screen.dart';
+import 'screens/admin/barangay_detail_screen.dart';
 import 'screens/settings_screen.dart';
 import 'screens/wellness/growth_monitoring_screen.dart';
 import 'screens/wellness/vaccination_screen.dart';
@@ -62,6 +63,7 @@ class KalingaKidsApp extends StatelessWidget {
         '/milestones': (context) => const MilestonesScreen(),
         '/nutrition': (context) => const NutritionScreen(),
         '/admin_inbox': (context) => const AdminInboxScreen(),
+        '/barangay_detail': (context) => const BarangayDetailScreen(),
       },
     );
   }

@@ -1,109 +1,222 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../../services/app_state.dart';
-import '../../models/child_model.dart';
-import '../../models/vaccine_model.dart';
-import '../../models/milestone_model.dart';
 
-class AdminDashboardScreen extends StatelessWidget {
+class AdminDashboardScreen extends StatefulWidget {
   const AdminDashboardScreen({super.key});
+
+  @override
+  State<AdminDashboardScreen> createState() => _AdminDashboardScreenState();
+}
+
+class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
+  String _searchQuery = '';
+  final _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final appState = Provider.of<AppState>(context);
     final children = appState.children;
-    final feedbacksCount = appState.feedbacks.length;
+    
+    // Calculate total unique parents dynamically
+    final Set<String> parentEmails = {};
+    for (var child in children) {
+      if (child.id == 'c1') {
+        parentEmails.add('carmelita.mercado@gmail.com');
+      } else if (child.id == 'c2') {
+        parentEmails.add('maria.delacruz@gmail.com');
+      } else if (child.id == 'c3') {
+        parentEmails.add('elena.santos@gmail.com');
+      } else {
+        parentEmails.add(appState.userEmail.isEmpty ? 'magulang.demo@gmail.com' : appState.userEmail);
+      }
+    }
+    final totalParents = parentEmails.length;
 
-    // Calculate stats
-    final totalChildren = children.length;
-    final boysCount = children.where((c) => c.gender == 'Lalaki').length;
-    final girlsCount = children.where((c) => c.gender == 'Babae').length;
+    // Filter barangays based on search query
+    final filteredBarangays = kBarangays.where((b) {
+      return b.toLowerCase().contains(_searchQuery.toLowerCase());
+    }).toList();
 
     return Scaffold(
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(24.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Analytics Row
-            Row(
-              children: [
-                Expanded(
-                  child: _buildStatCard(
-                    theme,
-                    title: 'Total na Bata',
-                    value: totalChildren.toString(),
-                    subtitle: 'Lalaki: $boysCount | Babae: $girlsCount',
-                    icon: Icons.child_care_rounded,
-                    color: Colors.blue.shade600,
+            // Stats Row
+            Padding(
+              padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: _buildStatCard(
+                      theme,
+                      title: 'Total na Bata',
+                      value: children.length.toString(),
+                      subtitle: 'Sa buong lungsod/bayan',
+                      icon: Icons.child_care_rounded,
+                      color: Colors.blue.shade600,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _buildStatCard(
-                    theme,
-                    title: 'Mensahe / Feedback',
-                    value: feedbacksCount.toString(),
-                    subtitle: 'Galing sa mga magulang',
-                    icon: Icons.mail_outline_rounded,
-                    color: Colors.amber.shade700,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: _buildStatCard(
+                      theme,
+                      title: 'Total na Magulang',
+                      value: totalParents.toString(),
+                      subtitle: 'Mga rehistradong pamilya',
+                      icon: Icons.people_alt_rounded,
+                      color: Colors.teal.shade600,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-            const SizedBox(height: 24),
-
-            // Children List Section
-            Text(
-              'Listahan ng mga Bata sa Barangay',
-              style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+  
+            // Search Bar
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+              child: SearchBar(
+                controller: _searchController,
+                hintText: 'Maghanap ng Barangay...',
+                leading: const Icon(Icons.search),
+                onChanged: (val) {
+                  setState(() {
+                    _searchQuery = val;
+                  });
+                },
+                trailing: [
+                  if (_searchQuery.isNotEmpty)
+                    IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() {
+                          _searchQuery = '';
+                        });
+                      },
+                    ),
+                ],
+              ),
             ),
+  
             const SizedBox(height: 12),
-
-            children.isEmpty
-                ? Card(
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    child: const Padding(
+  
+            // Barangay Grid Header
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 8.0),
+              child: Text(
+                'Mga Barangay (${filteredBarangays.length})',
+                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+              ),
+            ),
+  
+            // Grid of Barangays
+            filteredBarangays.isEmpty
+                ? const Center(
+                    child: Padding(
                       padding: EdgeInsets.all(24.0),
-                      child: Center(child: Text('Walang rehistradong bata sa system.')),
+                      child: Text(
+                        'Walang nahanap na Barangay.',
+                        style: TextStyle(color: Colors.grey),
+                      ),
                     ),
                   )
-                : ListView.builder(
+                : GridView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: children.length,
+                    padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 220,
+                      mainAxisSpacing: 16,
+                      crossAxisSpacing: 16,
+                      childAspectRatio: 1.4,
+                    ),
+                    itemCount: filteredBarangays.length,
                     itemBuilder: (context, index) {
-                      final child = children[index];
-                      final isBoy = child.gender == 'Lalaki';
-
+                      final barangay = filteredBarangays[index];
+                      // Calculate registered children in this Barangay
+                      final childCount = children.where((c) => c.barangay == barangay).length;
+  
                       return Card(
-                        margin: const EdgeInsets.only(bottom: 12),
+                        elevation: 1,
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(20),
                           side: BorderSide(
-                            color: isBoy ? Colors.blue.shade100 : Colors.pink.shade100,
-                            width: 1,
+                            color: childCount > 0
+                                ? theme.colorScheme.primary.withAlpha(51)
+                                : Colors.grey.shade200,
+                            width: 1.5,
                           ),
                         ),
-                        child: ListTile(
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                          leading: CircleAvatar(
-                            backgroundColor: isBoy ? Colors.blue.shade50 : Colors.pink.shade50,
-                            child: Icon(
-                              isBoy ? Icons.boy_outlined : Icons.girl_outlined,
-                              color: isBoy ? Colors.blue : Colors.pink,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(20),
+                          onTap: () {
+                            Navigator.pushNamed(
+                              context,
+                              '/barangay_detail',
+                              arguments: barangay,
+                            );
+                          },
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        barangay,
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 15,
+                                        ),
+                                        maxLines: 1,
+                                        overflow: TextOverflow.ellipsis,
+                                      ),
+                                    ),
+                                    Icon(
+                                      Icons.location_city_outlined,
+                                      size: 18,
+                                      color: childCount > 0
+                                          ? theme.colorScheme.primary
+                                          : Colors.grey,
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 12),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: childCount > 0
+                                        ? theme.colorScheme.primaryContainer
+                                        : Colors.grey.shade100,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    childCount == 1 ? '1 Bata' : '$childCount na Bata',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                      color: childCount > 0
+                                          ? theme.colorScheme.onPrimaryContainer
+                                          : Colors.grey.shade600,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
-                          title: Text(
-                            child.name,
-                            style: const TextStyle(fontWeight: FontWeight.bold),
-                          ),
-                          subtitle: Text(
-                            'Edad: ${child.ageString} | Blood Type: ${child.bloodType}',
-                          ),
-                          trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
-                          onTap: () => _showChildDetailSheet(context, child, appState, theme),
                         ),
                       );
                     },
@@ -157,131 +270,6 @@ class AdminDashboardScreen extends StatelessWidget {
           ],
         ),
       ),
-    );
-  }
-
-  void _showChildDetailSheet(BuildContext context, ChildModel child, AppState appState, ThemeData theme) {
-    final completedVaccinesCount = appState.getCompletedVaccines(child.id).length;
-    final totalVaccines = VaccineModel.dummyVaccines.length;
-
-    final completedMilestonesCount = appState.getCompletedMilestones(child.id).length;
-    final totalMilestones = MilestoneModel.dummyMilestones.length;
-
-    showModalBottomSheet(
-      context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
-      builder: (context) {
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Header
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                child.name,
-                style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              Text(
-                'Impormasyon at Health Records',
-                style: TextStyle(color: Colors.grey.shade600),
-                textAlign: TextAlign.center,
-              ),
-              const Divider(height: 32),
-
-              // Basic details
-              _buildDetailItem('Kasarian', child.gender),
-              _buildDetailItem('Edad', child.ageString),
-              _buildDetailItem('Blood Type', child.bloodType),
-              const Divider(height: 24),
-
-              // Progress reports
-              Text(
-                'Katayuan ng Kalusugan (Progress)',
-                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 12),
-              _buildProgressItem(
-                'Mga Bakunang Natanggap',
-                completedVaccinesCount,
-                totalVaccines,
-                theme.colorScheme.primary,
-              ),
-              const SizedBox(height: 12),
-              _buildProgressItem(
-                'Mga Nakumpletong Milestones',
-                completedMilestonesCount,
-                totalMilestones,
-                Colors.teal,
-              ),
-              const SizedBox(height: 24),
-
-              // Close Button
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text('Isara'),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  Widget _buildDetailItem(String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 6.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(fontWeight: FontWeight.w500)),
-          Text(value, style: const TextStyle(fontWeight: FontWeight.bold)),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildProgressItem(String label, int completed, int total, Color color) {
-    final percent = total > 0 ? (completed / total) : 0.0;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(label, style: const TextStyle(fontSize: 13)),
-            Text('$completed / $total (${(percent * 100).toInt()}%)',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
-          ],
-        ),
-        const SizedBox(height: 6),
-        ClipRRect(
-          borderRadius: BorderRadius.circular(4),
-          child: LinearProgressIndicator(
-            value: percent,
-            color: color,
-            backgroundColor: color.withAlpha(26),
-            minHeight: 8,
-          ),
-        ),
-      ],
     );
   }
 }

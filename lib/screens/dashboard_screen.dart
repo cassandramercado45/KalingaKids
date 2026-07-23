@@ -230,13 +230,19 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     children: [
                       CircleAvatar(
                         radius: 30,
-                        backgroundColor: activeChild?.gender == 'Lalaki'
-                            ? Colors.blue.shade100
-                            : Colors.pink.shade100,
+                        backgroundColor: activeChild == null
+                            ? Colors.grey.shade200
+                            : (activeChild.gender == 'Lalaki'
+                                ? Colors.blue.shade50
+                                : Colors.pink.shade50),
                         child: Icon(
-                          activeChild?.gender == 'Lalaki' ? Icons.boy : Icons.girl,
+                          activeChild == null
+                              ? Icons.person_outline
+                              : (activeChild.gender == 'Lalaki' ? Icons.boy : Icons.girl),
                           size: 36,
-                          color: activeChild?.gender == 'Lalaki' ? Colors.blue : Colors.pink,
+                          color: activeChild == null
+                              ? Colors.grey
+                              : (activeChild.gender == 'Lalaki' ? Colors.blue : Colors.pink),
                         ),
                       ),
                       const SizedBox(width: 16),

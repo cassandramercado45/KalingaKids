@@ -17,6 +17,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
   final _confirmPasswordController = TextEditingController();
   bool _isLoading = false;
   bool _obscureText = true;
+  String _selectedBarangay = 'Sabang';
 
   @override
   void dispose() {
@@ -38,6 +39,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         _nameController.text.trim(),
         _emailController.text.trim(),
         _passwordController.text,
+        _selectedBarangay,
       );
 
       setState(() {
@@ -108,6 +110,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             return 'Mangyaring ilagay ang iyong pangalan.';
                           }
                           return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      
+                      // Barangay Selection
+                      DropdownButtonFormField<String>(
+                        initialValue: _selectedBarangay,
+                        decoration: InputDecoration(
+                          labelText: 'Barangay',
+                          prefixIcon: const Icon(Icons.location_city_outlined),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                        ),
+                        items: kBarangays.map((b) {
+                          return DropdownMenuItem(value: b, child: Text(b));
+                        }).toList(),
+                        onChanged: (val) {
+                          if (val != null) {
+                            setState(() {
+                              _selectedBarangay = val;
+                            });
+                          }
                         },
                       ),
                       const SizedBox(height: 16),

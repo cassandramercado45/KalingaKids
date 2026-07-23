@@ -3,6 +3,43 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../models/child_model.dart';
 import '../models/feedback_model.dart';
+import '../models/chat_message_model.dart';
+
+const List<String> kBarangays = [
+  'Aguila',
+  'Anus',
+  'Aya',
+  'Bagong Pook',
+  'Balagtasin',
+  'Balagtasin I',
+  'Banay-Banay I',
+  'Banay-Banay II',
+  'Bigain I',
+  'Bigain II',
+  'Bigain South',
+  'Calansayan',
+  'Dagatan',
+  'Don Luis',
+  'Galamay-Amo',
+  'Lalayat',
+  'Lapolapo I',
+  'Lapolapo II',
+  'Lepote',
+  'Lumil',
+  'Mojon-Tampoy',
+  'Natunuan',
+  'Palanca',
+  'Pinagtung-Ulan',
+  'Poblacion Barangay I',
+  'Poblacion Barangay II',
+  'Poblacion Barangay III',
+  'Poblacion Barangay IV',
+  'Sabang',
+  'Salaban',
+  'Santo Cristo',
+  'Taysan',
+  'Tugtug',
+];
 
 class AppState with ChangeNotifier {
   late SharedPreferences _prefs;
@@ -14,6 +51,7 @@ class AppState with ChangeNotifier {
   bool _isLoggedIn = false;
   String _userName = '';
   String _userEmail = '';
+  String _userBarangay = 'Sabang';
 
   // Preferences
   bool _isDarkMode = false;
@@ -29,6 +67,10 @@ class AppState with ChangeNotifier {
   // Feedback Messages
   List<FeedbackModel> _feedbacks = [];
 
+  // Chat Messages
+  List<ChatMessage> _chatMessages = [];
+  List<ChatMessage> get chatMessages => _chatMessages;
+
   AppState() {
     _initPrefs();
   }
@@ -40,6 +82,7 @@ class AppState with ChangeNotifier {
     _isLoggedIn = _prefs.getBool('isLoggedIn') ?? false;
     _userName = _prefs.getString('userName') ?? '';
     _userEmail = _prefs.getString('userEmail') ?? '';
+    _userBarangay = _prefs.getString('userBarangay') ?? 'Sabang';
 
     // Load Dark Mode Preference
     _isDarkMode = _prefs.getBool('isDarkMode') ?? false;
@@ -50,46 +93,20 @@ class AppState with ChangeNotifier {
       try {
         final decoded = jsonDecode(childrenJson) as List;
         _children = decoded.map((e) => ChildModel.fromJson(e)).toList();
+        // Remove default mock children for clean presentation
+        _children.removeWhere((c) => c.id == 'c1' || c.id == 'c2' || c.id == 'c3');
       } catch (_) {
         _children = [];
       }
     }
 
-    // Populate mock children if empty for demonstration
-    if (_children.isEmpty) {
-      _children = [
-        ChildModel(
-          id: 'c1',
-          name: 'Carmina Mercado',
-          birthDate: DateTime.now().subtract(const Duration(days: 365 * 9)),
-          gender: 'Babae',
-          bloodType: 'O+',
-          growthHistory: const [],
-        ),
-        ChildModel(
-          id: 'c2',
-          name: 'Juan Dela Cruz',
-          birthDate: DateTime.now().subtract(const Duration(days: 60)),
-          gender: 'Lalaki',
-          bloodType: 'A-',
-          growthHistory: const [],
-        ),
-        ChildModel(
-          id: 'c3',
-          name: 'Maria Santos',
-          birthDate: DateTime.now().subtract(const Duration(days: 365 * 15)),
-          gender: 'Babae',
-          bloodType: 'B+',
-          growthHistory: const [],
-        ),
-      ];
-      final encoded = jsonEncode(_children.map((c) => c.toJson()).toList());
-      await _prefs.setString('childrenList', encoded);
-    }
-
     _selectedChildId = _prefs.getString('selectedChildId');
-    if ((_selectedChildId == null || _selectedChildId!.isEmpty) && _children.isNotEmpty) {
-      _selectedChildId = _children.first.id;
+    if (_children.isNotEmpty) {
+      if (_selectedChildId == null || !_children.any((c) => c.id == _selectedChildId)) {
+        _selectedChildId = _children.first.id;
+      }
+    } else {
+      _selectedChildId = null;
     }
 
     // Load Completed Vaccines
@@ -121,6 +138,17 @@ class AppState with ChangeNotifier {
       }
     }
 
+    // Load Chat Messages
+    final chatMessagesJson = _prefs.getString('chatMessagesList');
+    if (chatMessagesJson != null) {
+      try {
+        final decoded = jsonDecode(chatMessagesJson) as List;
+        _chatMessages = decoded.map((e) => ChatMessage.fromJson(e)).toList();
+      } catch (_) {
+        _chatMessages = [];
+      }
+    }
+
     _isInitialized = true;
     notifyListeners();
   }
@@ -134,6 +162,7 @@ class AppState with ChangeNotifier {
   String? get selectedChildId => _selectedChildId;
   List<FeedbackModel> get feedbacks => _feedbacks;
   bool get isAdmin => _userEmail == 'admin@kalingakids.com' || _userEmail == 'admin@gmail.com';
+  String get userBarangay => _userBarangay;
 
   ChildModel? get selectedChild {
     if (_selectedChildId == null || _selectedChildId!.isEmpty || _children.isEmpty) {
@@ -188,15 +217,55 @@ class AppState with ChangeNotifier {
     await _prefs.setString('feedbacksList', encoded);
   }
 
-  Future<void> register(String name, String email, String password) async {
+  Future<void> sendChatMessage({
+    required String senderEmail,
+    required String senderName,
+    required String recipientEmail,
+    required String text,
+    required String barangay,
+  }) async {
+    final newMsg = ChatMessage(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      senderEmail: senderEmail,
+      senderName: senderName,
+      recipientEmail: recipientEmail,
+      text: text,
+      date: DateTime.now(),
+      barangay: barangay,
+    );
+    _chatMessages.add(newMsg);
+    notifyListeners();
+    await _saveChatMessages();
+  }
+
+  Future<void> clearChatMessages() async {
+    _chatMessages.clear();
+    notifyListeners();
+    await _saveChatMessages();
+  }
+
+  Future<void> _saveChatMessages() async {
+    final encoded = jsonEncode(_chatMessages.map((m) => m.toJson()).toList());
+    await _prefs.setString('chatMessagesList', encoded);
+  }
+
+  Future<void> register(String name, String email, String password, String barangay) async {
     _isLoggedIn = true;
     _userName = name;
     _userEmail = email;
+    _userBarangay = barangay;
 
     await _prefs.setBool('isLoggedIn', true);
     await _prefs.setString('userName', _userName);
     await _prefs.setString('userEmail', _userEmail);
+    await _prefs.setString('userBarangay', _userBarangay);
 
+    notifyListeners();
+  }
+
+  Future<void> updateBarangay(String newBarangay) async {
+    _userBarangay = newBarangay;
+    await _prefs.setString('userBarangay', newBarangay);
     notifyListeners();
   }
 
@@ -204,6 +273,7 @@ class AppState with ChangeNotifier {
     _isLoggedIn = false;
     _userName = '';
     _userEmail = '';
+    _userBarangay = 'Sabang';
     _selectedChildId = null;
     _children = [];
     _completedVaccines = {};
@@ -244,6 +314,7 @@ class AppState with ChangeNotifier {
       gender: gender,
       bloodType: bloodType,
       growthHistory: [firstRecord],
+      barangay: _userBarangay,
     );
 
     _children.add(child);

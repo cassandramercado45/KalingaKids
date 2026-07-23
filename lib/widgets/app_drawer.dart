@@ -52,8 +52,8 @@ class AppDrawer extends StatelessWidget {
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.phone_in_talk_outlined),
-                  title: const Text('Makipag-ugnayan'),
+                  leading: const Icon(Icons.smart_toy_outlined),
+                  title: const Text('Kalinga Chatbot'),
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.pushNamed(context, '/contact');
@@ -77,15 +77,6 @@ class AppDrawer extends StatelessWidget {
                   onTap: () {
                     Navigator.pop(context);
                     Navigator.pushNamed(context, '/settings');
-                  },
-                ),
-                const Divider(),
-                ListTile(
-                  leading: const Icon(Icons.mark_email_unread_outlined),
-                  title: const Text('Inbox ng Barangay (Demo)'),
-                  onTap: () {
-                    Navigator.pop(context);
-                    Navigator.pushNamed(context, '/admin_inbox');
                   },
                 ),
               ],

@@ -47,7 +47,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
     final List<String> titles = isAdmin
         ? [
             'Admin Dashboard',
-            'Inbox ng Barangay',
+            'Mga Inbox ng Barangay',
           ]
         : [
             'KalingaKids Dashboard',
@@ -79,7 +79,7 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
           ),
         ],
       ),
-      drawer: const AppDrawer(),
+      drawer: isAdmin ? null : const AppDrawer(),
       body: IndexedStack(
         index: activeIndex,
         children: screens,

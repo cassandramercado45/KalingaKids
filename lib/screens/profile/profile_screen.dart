@@ -85,6 +85,27 @@ class ProfileScreen extends StatelessWidget {
                             appState.userEmail,
                             style: const TextStyle(color: Colors.grey),
                           ),
+                          const SizedBox(height: 8),
+                          Row(
+                            children: [
+                              const Icon(Icons.location_on_outlined, size: 16, color: Colors.grey),
+                              const SizedBox(width: 4),
+                              Expanded(
+                                child: RichText(
+                                  text: TextSpan(
+                                    style: TextStyle(color: Colors.grey.shade700, fontSize: 13),
+                                    children: [
+                                      const TextSpan(text: 'Barangay: '),
+                                      TextSpan(
+                                        text: appState.userBarangay,
+                                        style: const TextStyle(fontWeight: FontWeight.bold),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ],
                       ),
                     ),

@@ -5,6 +5,7 @@ class ChildModel {
   final String gender; // 'Lalaki' or 'Babae'
   final String bloodType;
   final List<GrowthRecord> growthHistory;
+  final String barangay;
 
   ChildModel({
     required this.id,
@@ -13,6 +14,7 @@ class ChildModel {
     required this.gender,
     required this.bloodType,
     required this.growthHistory,
+    required this.barangay,
   });
 
   // Calculate age in years and months
@@ -76,6 +78,7 @@ class ChildModel {
               ?.map((e) => GrowthRecord.fromJson(e as Map<String, dynamic>))
               .toList() ??
           [],
+      barangay: (json['barangay'] as String?) ?? 'Sabang',
     );
   }
 
@@ -88,6 +91,7 @@ class ChildModel {
       'gender': gender,
       'bloodType': bloodType,
       'growthHistory': growthHistory.map((e) => e.toJson()).toList(),
+      'barangay': barangay,
     };
   }
 
@@ -98,6 +102,7 @@ class ChildModel {
     String? gender,
     String? bloodType,
     List<GrowthRecord>? growthHistory,
+    String? barangay,
   }) {
     return ChildModel(
       id: id ?? this.id,
@@ -106,6 +111,7 @@ class ChildModel {
       gender: gender ?? this.gender,
       bloodType: bloodType ?? this.bloodType,
       growthHistory: growthHistory ?? this.growthHistory,
+      barangay: barangay ?? this.barangay,
     );
   }
 }
@@ -131,33 +137,33 @@ class GrowthRecord {
   String getBmiInterpretation(double ageInYears) {
     final value = bmi;
     if (ageInYears < 2) {
-      if (value < 14.0) return 'Underweight';
+      if (value < 14.0) return 'Kulang sa Timbang (Wasted)';
       if (value < 18.0) return 'Normal';
-      if (value < 20.0) return 'Overweight';
-      return 'Obese';
+      if (value < 20.0) return 'Sobra sa Timbang (Overweight)';
+      return 'Obese / Labis ang Timbang';
     }
     if (ageInYears < 5) {
-      if (value < 13.5) return 'Underweight';
+      if (value < 13.5) return 'Kulang sa Timbang (Wasted)';
       if (value < 17.5) return 'Normal';
-      if (value < 19.5) return 'Overweight';
-      return 'Obese';
+      if (value < 19.5) return 'Sobra sa Timbang (Overweight)';
+      return 'Obese / Labis ang Timbang';
     }
     if (ageInYears < 10) {
-      if (value < 13.0) return 'Underweight';
+      if (value < 13.0) return 'Kulang sa Timbang (Wasted)';
       if (value < 18.5) return 'Normal';
-      if (value < 21.0) return 'Overweight';
-      return 'Obese';
+      if (value < 21.0) return 'Sobra sa Timbang (Overweight)';
+      return 'Obese / Labis ang Timbang';
     }
     if (ageInYears <= 19) {
-      if (value < 14.5) return 'Underweight';
+      if (value < 14.5) return 'Kulang sa Timbang (Wasted)';
       if (value < 23.0) return 'Normal';
-      if (value < 26.5) return 'Overweight';
-      return 'Obese';
+      if (value < 26.5) return 'Sobra sa Timbang (Overweight)';
+      return 'Obese / Labis ang Timbang';
     }
-    if (value < 18.5) return 'Underweight';
+    if (value < 18.5) return 'Kulang sa Timbang (Underweight)';
     if (value < 25.0) return 'Normal';
-    if (value < 30.0) return 'Overweight';
-    return 'Obese';
+    if (value < 30.0) return 'Sobra sa Timbang (Overweight)';
+    return 'Obese / Labis ang Timbang';
   }
 
   String get bmiInterpretation {
