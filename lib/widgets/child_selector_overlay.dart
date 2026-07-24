@@ -119,33 +119,40 @@ class ChildSelectorOverlay extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Row(
-                children: [
-                  CircleAvatar(
-                    radius: 16,
-                    backgroundColor: activeChild.gender == 'Lalaki'
-                        ? Colors.blue.shade200
-                        : Colors.pink.shade200,
-                    child: Icon(
-                      activeChild.gender == 'Lalaki' ? Icons.boy : Icons.girl,
-                      size: 20,
-                      color: Colors.white,
+              Expanded(
+                child: Row(
+                  children: [
+                    CircleAvatar(
+                      radius: 16,
+                      backgroundColor: activeChild.gender == 'Lalaki'
+                          ? Colors.blue.shade200
+                          : Colors.pink.shade200,
+                      child: Icon(
+                        activeChild.gender == 'Lalaki' ? Icons.boy : Icons.girl,
+                        size: 20,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    'Aktibong Bata: ',
-                    style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  Text(
-                    activeChild.name,
-                    style: theme.textTheme.bodyMedium?.copyWith(
-                      color: theme.colorScheme.primary,
-                      fontWeight: FontWeight.bold,
+                    const SizedBox(width: 8),
+                    Text(
+                      'Aktibong Bata: ',
+                      style: theme.textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.bold),
                     ),
-                  ),
-                ],
+                    Expanded(
+                      child: Text(
+                        activeChild.name,
+                        style: theme.textTheme.bodyMedium?.copyWith(
+                          color: theme.colorScheme.primary,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
+                ),
               ),
+              const SizedBox(width: 8),
               TextButton.icon(
                 onPressed: () {
                   // Reset selection to force selector
