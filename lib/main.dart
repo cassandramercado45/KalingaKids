@@ -41,7 +41,7 @@ class KalingaKidsApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
-      themeMode: appState.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      themeMode: ThemeMode.light,
       home: !appState.isInitialized
           ? const Scaffold(
               body: Center(child: CircularProgressIndicator()),

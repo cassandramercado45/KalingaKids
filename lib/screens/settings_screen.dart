@@ -17,25 +17,6 @@ class SettingsScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(24.0),
         children: [
-          Text(
-            'Pagpapasadya',
-            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 12),
-          Card(
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            child: SwitchListTile(
-              secondary: const Icon(Icons.dark_mode_outlined),
-              title: const Text('Dark Mode (Madilim na Tema)'),
-              subtitle: const Text('Isaayos ang kulay ng app para sa dilim.'),
-              value: appState.isDarkMode,
-              onChanged: (bool value) {
-                appState.toggleTheme(value);
-              },
-            ),
-          ),
-          
-          const SizedBox(height: 24),
           
           Text(
             'Pamamahala ng Data',
