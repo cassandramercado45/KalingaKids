@@ -193,78 +193,83 @@ class BarangayDetailScreen extends StatelessWidget {
     final completedMilestonesCount = appState.getCompletedMilestones(child.id).length;
     final totalMilestones = MilestoneModel.dummyMilestones.length;
 
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(28)),
-      ),
       builder: (context) {
-        return SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              // Header
-              Center(
-                child: Container(
-                  width: 40,
-                  height: 4,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade300,
-                    borderRadius: BorderRadius.circular(2),
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(28),
+          ),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 500, maxHeight: 600),
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    child.name,
+                    style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                    textAlign: TextAlign.center,
                   ),
-                ),
-              ),
-              const SizedBox(height: 20),
-              Text(
-                child.name,
-                style: theme.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
-                textAlign: TextAlign.center,
-              ),
-              Text(
-                'Impormasyon at Health Records',
-                style: TextStyle(color: Colors.grey.shade600),
-                textAlign: TextAlign.center,
-              ),
-              const Divider(height: 32),
+                  const SizedBox(height: 4),
+                  Text(
+                    'Impormasyon at Health Records',
+                    style: TextStyle(color: Colors.grey.shade600),
+                    textAlign: TextAlign.center,
+                  ),
+                  const Divider(height: 32),
+                  
+                  // Wrap rest in scroll view to prevent height overflow
+                  Expanded(
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // Basic details
+                          _buildDetailItem('Kasarian', child.gender),
+                          _buildDetailItem('Edad', child.ageString),
+                          _buildDetailItem('Blood Type', child.bloodType),
+                          const Divider(height: 24),
 
-              // Basic details
-              _buildDetailItem('Kasarian', child.gender),
-              _buildDetailItem('Edad', child.ageString),
-              _buildDetailItem('Blood Type', child.bloodType),
-              const Divider(height: 24),
-
-              // Progress reports
-              Text(
-                'Katayuan ng Kalusugan (Progress)',
-                style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                          // Progress reports
+                          Text(
+                            'Katayuan ng Kalusugan (Progress)',
+                            style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          const SizedBox(height: 12),
+                          _buildProgressItem(
+                            'Mga Bakunang Natanggap',
+                            completedVaccinesCount,
+                            totalVaccines,
+                            theme.colorScheme.primary,
+                          ),
+                          const SizedBox(height: 12),
+                          _buildProgressItem(
+                            'Mga Nakumpletong Milestones',
+                            completedMilestonesCount,
+                            totalMilestones,
+                            Colors.teal,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  
+                  const SizedBox(height: 24),
+                  // Close Button
+                  ElevatedButton(
+                    onPressed: () => Navigator.pop(context),
+                    style: ElevatedButton.styleFrom(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                    ),
+                    child: const Text('Isara'),
+                  ),
+                ],
               ),
-              const SizedBox(height: 12),
-              _buildProgressItem(
-                'Mga Bakunang Natanggap',
-                completedVaccinesCount,
-                totalVaccines,
-                theme.colorScheme.primary,
-              ),
-              const SizedBox(height: 12),
-              _buildProgressItem(
-                'Mga Nakumpletong Milestones',
-                completedMilestonesCount,
-                totalMilestones,
-                Colors.teal,
-              ),
-              const SizedBox(height: 24),
-
-              // Close Button
-              ElevatedButton(
-                onPressed: () => Navigator.pop(context),
-                style: ElevatedButton.styleFrom(
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                ),
-                child: const Text('Isara'),
-              ),
-            ],
+            ),
           ),
         );
       },
