@@ -125,7 +125,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           selectedColor: Colors.white,
                           fillColor: theme.colorScheme.primary,
                           color: theme.colorScheme.primary,
-                          constraints: const BoxConstraints(minHeight: 45, minWidth: 150),
+                          constraints: const BoxConstraints(minHeight: 45, minWidth: 105),
                           isSelected: [_userType == 'Magulang', _userType == 'Admin'],
                           onPressed: (index) {
                             setState(() {

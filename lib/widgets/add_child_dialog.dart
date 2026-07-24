@@ -143,21 +143,27 @@ class _AddChildDialogState extends State<AddChildDialog> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final currentBmi = _bmi;
+    final bottomInset = MediaQuery.of(context).viewInsets.bottom;
 
     return Dialog(
+      insetPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 500),
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(24.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Text(
-                  'Magdagdag ng Anak',
+      child: AnimatedPadding(
+        padding: EdgeInsets.only(bottom: bottomInset),
+        duration: const Duration(milliseconds: 100),
+        curve: Curves.decelerate,
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 500),
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.all(24.0),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Text(
+                    'Magdagdag ng Anak',
                   style: theme.textTheme.headlineSmall?.copyWith(
                     fontWeight: FontWeight.bold,
                   ),
@@ -207,6 +213,7 @@ class _AddChildDialogState extends State<AddChildDialog> {
                 // Edad (Taon at Buwan)
                 TextFormField(
                   controller: _ageController,
+                  readOnly: true,
                   decoration: InputDecoration(
                     labelText: 'Edad (Taon at Buwan)',
                     prefixIcon: const Icon(Icons.cake),
@@ -363,6 +370,7 @@ class _AddChildDialogState extends State<AddChildDialog> {
           ),
         ),
       ),
-    );
+    ),
+  );
   }
 }

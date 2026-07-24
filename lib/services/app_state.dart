@@ -87,17 +87,28 @@ class AppState with ChangeNotifier {
     // Load Dark Mode Preference
     _isDarkMode = _prefs.getBool('isDarkMode') ?? false;
 
+    // Load User and Children Database
+    await _loadUserDataFromPrefs();
+
+    _isInitialized = true;
+    notifyListeners();
+  }
+
+  Future<void> _loadUserDataFromPrefs() async {
     // Load Children list
     final childrenJson = _prefs.getString('childrenList');
     if (childrenJson != null) {
       try {
         final decoded = jsonDecode(childrenJson) as List;
-        _children = decoded.map((e) => ChildModel.fromJson(e)).toList();
+        _children = decoded.map((e) => ChildModel.fromJson(Map<String, dynamic>.from(e as Map))).toList();
         // Remove default mock children for clean presentation
         _children.removeWhere((c) => c.id == 'c1' || c.id == 'c2' || c.id == 'c3');
-      } catch (_) {
+      } catch (err, stack) {
+        debugPrint('Error loading children from SharedPreferences: $err\n$stack');
         _children = [];
       }
+    } else {
+      _children = [];
     }
 
     _selectedChildId = _prefs.getString('selectedChildId');
@@ -115,7 +126,11 @@ class AppState with ChangeNotifier {
       try {
         final Map<String, dynamic> decoded = jsonDecode(vaccinesJson);
         _completedVaccines = decoded.map((key, value) => MapEntry(key, List<String>.from(value)));
-      } catch (_) {}
+      } catch (_) {
+        _completedVaccines = {};
+      }
+    } else {
+      _completedVaccines = {};
     }
 
     // Load Completed Milestones
@@ -124,7 +139,11 @@ class AppState with ChangeNotifier {
       try {
         final Map<String, dynamic> decoded = jsonDecode(milestonesJson);
         _completedMilestones = decoded.map((key, value) => MapEntry(key, List<String>.from(value)));
-      } catch (_) {}
+      } catch (_) {
+        _completedMilestones = {};
+      }
+    } else {
+      _completedMilestones = {};
     }
 
     // Load Feedback Messages
@@ -136,6 +155,8 @@ class AppState with ChangeNotifier {
       } catch (_) {
         _feedbacks = [];
       }
+    } else {
+      _feedbacks = [];
     }
 
     // Load Chat Messages
@@ -147,10 +168,9 @@ class AppState with ChangeNotifier {
       } catch (_) {
         _chatMessages = [];
       }
+    } else {
+      _chatMessages = [];
     }
-
-    _isInitialized = true;
-    notifyListeners();
   }
 
   // Getters
@@ -185,6 +205,11 @@ class AppState with ChangeNotifier {
       await _prefs.setBool('isLoggedIn', true);
       await _prefs.setString('userName', _userName);
       await _prefs.setString('userEmail', _userEmail);
+      
+      _userBarangay = _prefs.getString('userBarangay') ?? 'Sabang';
+
+      // Reload database from prefs
+      await _loadUserDataFromPrefs();
       
       notifyListeners();
       return true;
@@ -260,6 +285,9 @@ class AppState with ChangeNotifier {
     await _prefs.setString('userEmail', _userEmail);
     await _prefs.setString('userBarangay', _userBarangay);
 
+    // Reload database from prefs
+    await _loadUserDataFromPrefs();
+
     notifyListeners();
   }
 
@@ -279,7 +307,12 @@ class AppState with ChangeNotifier {
     _completedVaccines = {};
     _completedMilestones = {};
 
-    await _prefs.clear();
+    await _prefs.setBool('isLoggedIn', false);
+    await _prefs.remove('userName');
+    await _prefs.remove('userEmail');
+    await _prefs.remove('userBarangay');
+    await _prefs.remove('selectedChildId');
+
     notifyListeners();
   }
 
@@ -315,6 +348,7 @@ class AppState with ChangeNotifier {
       bloodType: bloodType,
       growthHistory: [firstRecord],
       barangay: _userBarangay,
+      parentEmail: _userEmail.isEmpty ? 'magulang.demo@gmail.com' : _userEmail,
     );
 
     _children.add(child);

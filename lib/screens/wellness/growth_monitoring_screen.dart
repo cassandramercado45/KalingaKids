@@ -222,7 +222,7 @@ class _GrowthMonitoringScreenState extends State<GrowthMonitoringScreen> {
                               ),
                             ),
                             title: Text('Taas: ${rec.height} cm | Timbang: ${rec.weight} kg'),
-                            subtitle: Text('Edad: $ageAtRecord | Petsa: $formattedDate\nBMI: ${rec.bmi.toStringAsFixed(1)} ($bmiInterpretation)'),
+                            subtitle: Text('Edad: $ageAtRecord | Petsa: $formattedDate\nBMI: ${rec.bmi.toStringAsFixed(1)}\n${bmiInterpretation.replaceAll(' | ', '\n')}'),
                           ),
                         );
                       },

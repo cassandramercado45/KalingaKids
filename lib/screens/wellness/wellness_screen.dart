@@ -67,12 +67,21 @@ class WellnessScreen extends StatelessWidget {
                       if (activeChild.latestRecord != null) ...[
                         const Divider(height: 24),
                         Text(
-                          'BMI: ${activeChild.latestRecord!.bmi.toStringAsFixed(2)} ($bmiInterpretation)',
+                          'BMI: ${activeChild.latestRecord!.bmi.toStringAsFixed(2)}',
                           style: theme.textTheme.titleMedium?.copyWith(
                             fontWeight: FontWeight.bold,
                             color: theme.colorScheme.primary,
                           ),
                         ),
+                        const SizedBox(height: 8),
+                        ...bmiInterpretation.split(' | ').map((status) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 2.0),
+                          child: Text(
+                            status,
+                            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: Colors.black87),
+                            textAlign: TextAlign.center,
+                          ),
+                        )),
                       ]
                     ],
                   ),

@@ -26,19 +26,7 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     final children = appState.children;
     
     // Calculate total unique parents dynamically
-    final Set<String> parentEmails = {};
-    for (var child in children) {
-      if (child.id == 'c1') {
-        parentEmails.add('carmelita.mercado@gmail.com');
-      } else if (child.id == 'c2') {
-        parentEmails.add('maria.delacruz@gmail.com');
-      } else if (child.id == 'c3') {
-        parentEmails.add('elena.santos@gmail.com');
-      } else {
-        parentEmails.add(appState.userEmail.isEmpty ? 'magulang.demo@gmail.com' : appState.userEmail);
-      }
-    }
-    final totalParents = parentEmails.length;
+    final totalParents = children.map((c) => c.parentEmail).toSet().length;
 
     // Filter barangays based on search query
     final filteredBarangays = kBarangays.where((b) {
@@ -141,79 +129,83 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     ),
                     itemCount: filteredBarangays.length,
                     itemBuilder: (context, index) {
-                      final barangay = filteredBarangays[index];
-                      // Calculate registered children in this Barangay
-                      final childCount = children.where((c) => c.barangay == barangay).length;
-  
-                      return Card(
-                        elevation: 1,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          side: BorderSide(
-                            color: childCount > 0
-                                ? theme.colorScheme.primary.withAlpha(51)
-                                : Colors.grey.shade200,
-                            width: 1.5,
-                          ),
-                        ),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(20),
-                          onTap: () {
-                            Navigator.pushNamed(
-                              context,
-                              '/barangay_detail',
-                              arguments: barangay,
-                            );
-                          },
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Expanded(
-                                      child: Text(
-                                        barangay,
-                                        style: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 15,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                    Icon(
-                                      Icons.location_city_outlined,
-                                      size: 18,
-                                      color: childCount > 0
-                                          ? theme.colorScheme.primary
-                                          : Colors.grey,
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 12),
-                                Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                                  decoration: BoxDecoration(
-                                    color: childCount > 0
-                                        ? theme.colorScheme.primaryContainer
-                                        : Colors.grey.shade100,
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: Text(
-                                    childCount == 1 ? '1 Bata' : '$childCount na Bata',
-                                    style: TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.bold,
-                                      color: childCount > 0
-                                          ? theme.colorScheme.onPrimaryContainer
-                                          : Colors.grey.shade600,
-                                    ),
-                                  ),
-                                ),
+                       final barangay = filteredBarangays[index];
+                       // Calculate registered children and parents in this Barangay
+                       final barangayChildren = children.where((c) => c.barangay == barangay);
+                       final childCount = barangayChildren.length;
+                       final parentCount = barangayChildren.map((c) => c.parentEmail).toSet().length;
+   
+                       return Card(
+                         elevation: 1,
+                         shape: RoundedRectangleBorder(
+                           borderRadius: BorderRadius.circular(20),
+                           side: BorderSide(
+                             color: childCount > 0
+                                 ? theme.colorScheme.primary.withAlpha(51)
+                                 : Colors.grey.shade200,
+                             width: 1.5,
+                           ),
+                         ),
+                         child: InkWell(
+                           borderRadius: BorderRadius.circular(20),
+                           onTap: () {
+                             Navigator.pushNamed(
+                               context,
+                               '/barangay_detail',
+                               arguments: barangay,
+                             );
+                           },
+                           child: Padding(
+                             padding: const EdgeInsets.all(16.0),
+                             child: Column(
+                               crossAxisAlignment: CrossAxisAlignment.start,
+                               mainAxisAlignment: MainAxisAlignment.center,
+                               children: [
+                                 Row(
+                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                   children: [
+                                     Expanded(
+                                       child: Text(
+                                         barangay,
+                                         style: const TextStyle(
+                                           fontWeight: FontWeight.bold,
+                                           fontSize: 15,
+                                         ),
+                                         maxLines: 1,
+                                         overflow: TextOverflow.ellipsis,
+                                       ),
+                                     ),
+                                     Icon(
+                                       Icons.location_city_outlined,
+                                       size: 18,
+                                       color: childCount > 0
+                                           ? theme.colorScheme.primary
+                                           : Colors.grey,
+                                     ),
+                                   ],
+                                 ),
+                                 const SizedBox(height: 12),
+                                 Container(
+                                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                                   decoration: BoxDecoration(
+                                     color: childCount > 0
+                                         ? theme.colorScheme.primaryContainer
+                                         : Colors.grey.shade100,
+                                     borderRadius: BorderRadius.circular(8),
+                                   ),
+                                   child: Text(
+                                     childCount == 0
+                                         ? '0 Bata | 0 Magulang'
+                                         : '${childCount == 1 ? '1 Bata' : '$childCount na Bata'} | ${parentCount == 1 ? '1 Magulang' : '$parentCount na Magulang'}',
+                                     style: TextStyle(
+                                       fontSize: 11,
+                                       fontWeight: FontWeight.bold,
+                                       color: childCount > 0
+                                           ? theme.colorScheme.onPrimaryContainer
+                                           : Colors.grey.shade600,
+                                     ),
+                                   ),
+                                 ),
                               ],
                             ),
                           ),
