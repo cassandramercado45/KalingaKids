@@ -90,31 +90,33 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     'Subaybayan natin ang kalusugan at pag-unlad ng inyong anak.',
                     style: TextStyle(color: Colors.grey),
                   ),
-                  const SizedBox(height: 20),
-                  // Search Bar
-                  TextField(
-                    controller: _searchController,
-                    onChanged: (val) {
-                      setState(() {
-                        _searchQuery = val;
-                      });
-                    },
-                    decoration: InputDecoration(
-                      hintText: 'Maghanap ng paksa o gabay...',
-                      prefixIcon: const Icon(Icons.search),
-                      suffixIcon: _searchQuery.isNotEmpty
-                          ? IconButton(
-                              icon: const Icon(Icons.clear),
-                              onPressed: () {
-                                _searchController.clear();
-                                setState(() {
-                                  _searchQuery = '';
-                                });
-                              },
-                            )
-                          : null,
+                ],
+              ),
+            ),
+
+            // Search Bar (Material 3 style)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16.0),
+              child: SearchBar(
+                controller: _searchController,
+                hintText: 'Maghanap ng paksa o gabay...',
+                leading: const Icon(Icons.search),
+                onChanged: (val) {
+                  setState(() {
+                    _searchQuery = val;
+                  });
+                },
+                trailing: [
+                  if (_searchQuery.isNotEmpty)
+                    IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () {
+                        _searchController.clear();
+                        setState(() {
+                          _searchQuery = '';
+                        });
+                      },
                     ),
-                  ),
                 ],
               ),
             ),
