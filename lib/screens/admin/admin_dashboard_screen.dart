@@ -25,8 +25,8 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
     final appState = Provider.of<AppState>(context);
     final children = appState.children;
     
-    // Calculate total unique parents dynamically
-    final totalParents = children.map((c) => c.parentEmail).toSet().length;
+    // Calculate total unique parents dynamically from registered parents list
+    final totalParents = appState.registeredParents.length;
 
     // Filter barangays based on search query
     final filteredBarangays = kBarangays.where((b) {
@@ -130,10 +130,10 @@ class _AdminDashboardScreenState extends State<AdminDashboardScreen> {
                     itemCount: filteredBarangays.length,
                     itemBuilder: (context, index) {
                        final barangay = filteredBarangays[index];
-                       // Calculate registered children and parents in this Barangay
-                       final barangayChildren = children.where((c) => c.barangay == barangay);
-                       final childCount = barangayChildren.length;
-                       final parentCount = barangayChildren.map((c) => c.parentEmail).toSet().length;
+                        // Calculate registered children and parents in this Barangay
+                        final barangayChildren = children.where((c) => c.barangay == barangay);
+                        final childCount = barangayChildren.length;
+                        final parentCount = appState.registeredParents.where((p) => p['barangay'] == barangay).length;
    
                        return Card(
                          elevation: 1,
