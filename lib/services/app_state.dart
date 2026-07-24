@@ -264,7 +264,13 @@ class AppState with ChangeNotifier {
   String get userName => _userName;
   String get userEmail => _userEmail;
   bool get isDarkMode => _isDarkMode;
-  List<ChildModel> get children => _children;
+  List<ChildModel> get children {
+    if (isAdmin || !_isLoggedIn) {
+      return _children;
+    } else {
+      return _children.where((c) => c.parentEmail == _userEmail).toList();
+    }
+  }
   List<Map<String, String>> get registeredParents => _registeredParents;
   String? get selectedChildId => _selectedChildId;
   List<FeedbackModel> get feedbacks => _feedbacks;
@@ -272,12 +278,13 @@ class AppState with ChangeNotifier {
   String get userBarangay => _userBarangay;
 
   ChildModel? get selectedChild {
-    if (_selectedChildId == null || _selectedChildId!.isEmpty || _children.isEmpty) {
+    final list = children;
+    if (_selectedChildId == null || _selectedChildId!.isEmpty || list.isEmpty) {
       return null;
     }
-    return _children.firstWhere(
+    return list.firstWhere(
       (c) => c.id == _selectedChildId,
-      orElse: () => _children.first,
+      orElse: () => list.first,
     );
   }
 
