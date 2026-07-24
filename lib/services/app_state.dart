@@ -237,7 +237,10 @@ class AppState with ChangeNotifier {
     if (parentsJson != null) {
       try {
         final decoded = jsonDecode(parentsJson) as List;
-        _registeredParents = decoded.map((e) => Map<String, String>.from(e as Map)).toList();
+        _registeredParents = decoded
+            .map((e) => Map<String, String>.from(e as Map))
+            .where((p) => p['email']?.trim().toLowerCase() != 'admin@gmail.com' && p['email']?.trim().toLowerCase() != 'admin@kalingakids.com')
+            .toList();
       } catch (_) {
         _registeredParents = [];
       }
