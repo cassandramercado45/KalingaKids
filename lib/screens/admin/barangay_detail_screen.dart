@@ -172,7 +172,7 @@ class BarangayDetailScreen extends StatelessWidget {
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                           subtitle: Text(
-                            'Edad: ${child.ageString} | Blood Type: ${child.bloodType}',
+                            '${child.ageString} | Blood Type: ${child.bloodType}',
                           ),
                           trailing: const Icon(Icons.arrow_forward_ios_rounded, size: 16),
                           onTap: () => _showChildDetailSheet(context, child, appState, theme),
