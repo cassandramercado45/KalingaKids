@@ -71,6 +71,9 @@ class AppState with ChangeNotifier {
   List<ChatMessage> _chatMessages = [];
   List<ChatMessage> get chatMessages => _chatMessages;
 
+  // Registered Parents Profiles List
+  List<Map<String, String>> _registeredParents = [];
+
   AppState() {
     _initPrefs();
   }
@@ -232,6 +235,28 @@ class AppState with ChangeNotifier {
     } else {
       _chatMessages = [];
     }
+
+    // Load Registered Parents list
+    final parentsJson = _prefs.getString('registeredParents');
+    if (parentsJson != null) {
+      try {
+        final decoded = jsonDecode(parentsJson) as List;
+        _registeredParents = decoded.map((e) => Map<String, String>.from(e as Map)).toList();
+      } catch (_) {
+        _registeredParents = [];
+      }
+    } else {
+      _registeredParents = [];
+    }
+
+    if (_registeredParents.isEmpty) {
+      _registeredParents = [
+        {'email': 'carmelita.mercado@gmail.com', 'name': 'Carmelita Mercado', 'barangay': 'Sabang'},
+        {'email': 'maria.delacruz@gmail.com', 'name': 'Maria Dela Cruz', 'barangay': 'Bigain I'},
+        {'email': 'elena.santos@gmail.com', 'name': 'Elena Santos', 'barangay': 'Bigain II'},
+      ];
+      await _saveParentsToPrefs();
+    }
   }
 
   // Getters
@@ -240,6 +265,7 @@ class AppState with ChangeNotifier {
   String get userEmail => _userEmail;
   bool get isDarkMode => _isDarkMode;
   List<ChildModel> get children => _children;
+  List<Map<String, String>> get registeredParents => _registeredParents;
   String? get selectedChildId => _selectedChildId;
   List<FeedbackModel> get feedbacks => _feedbacks;
   bool get isAdmin => _userEmail == 'admin@kalingakids.com' || _userEmail == 'admin@gmail.com';
@@ -346,10 +372,24 @@ class AppState with ChangeNotifier {
     await _prefs.setString('userEmail', _userEmail);
     await _prefs.setString('userBarangay', _userBarangay);
 
+    // Save to registered parents list
+    if (!_registeredParents.any((p) => p['email'] == email)) {
+      _registeredParents.add({
+        'email': email,
+        'name': name,
+        'barangay': barangay,
+      });
+      await _saveParentsToPrefs();
+    }
+
     // Reload database from prefs
     await _loadUserDataFromPrefs();
 
     notifyListeners();
+  }
+
+  Future<void> _saveParentsToPrefs() async {
+    await _prefs.setString('registeredParents', jsonEncode(_registeredParents));
   }
 
   Future<void> updateBarangay(String newBarangay) async {

@@ -14,27 +14,14 @@ class BarangayDetailScreen extends StatelessWidget {
     final appState = Provider.of<AppState>(context);
     
     // Retrieve barangay name from route settings arguments
+    // Retrieve barangay name from route settings arguments
     final barangayName = ModalRoute.of(context)!.settings.arguments as String;
     
     // Filter children belonging to this Barangay
     final barangayChildren = appState.children.where((c) => c.barangay == barangayName).toList();
 
-    // Mock parents registered in this Barangay
-    // (In our prototype, we show the logged-in parent if they belong to this Barangay,
-    // plus some mock parents corresponding to the children)
-    final Set<String> parentEmails = {};
-    for (var child in barangayChildren) {
-      if (child.id == 'c1') {
-        parentEmails.add('carmelita.mercado@gmail.com');
-      } else if (child.id == 'c2') {
-        parentEmails.add('maria.delacruz@gmail.com');
-      } else if (child.id == 'c3') {
-        parentEmails.add('elena.santos@gmail.com');
-      } else {
-        // Newly added child - associate with the logged-in parent
-        parentEmails.add(appState.userEmail.isEmpty ? 'magulang.demo@gmail.com' : appState.userEmail);
-      }
-    }
+    // Filter parents belonging to this Barangay
+    final barangayParents = appState.registeredParents.where((p) => p['barangay'] == barangayName).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -74,7 +61,7 @@ class BarangayDetailScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 4),
                           Text(
-                            'Mga Bata: ${barangayChildren.length} | Mga Magulang: ${parentEmails.length}',
+                            'Mga Bata: ${barangayChildren.length} | Mga Magulang: ${barangayParents.length}',
                             style: TextStyle(
                               color: theme.colorScheme.onPrimaryContainer.withAlpha(200),
                             ),
@@ -100,7 +87,7 @@ class BarangayDetailScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 12),
-            parentEmails.isEmpty
+            barangayParents.isEmpty
                 ? const Card(
                     child: Padding(
                       padding: EdgeInsets.all(16.0),
@@ -114,10 +101,11 @@ class BarangayDetailScreen extends StatelessWidget {
                 : ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    itemCount: parentEmails.length,
+                    itemCount: barangayParents.length,
                     itemBuilder: (context, index) {
-                      final email = parentEmails.elementAt(index);
-                      final name = email.split('@')[0].replaceAll('.', ' ').toUpperCase();
+                      final parent = barangayParents[index];
+                      final name = parent['name'] ?? '';
+                      final email = parent['email'] ?? '';
                       return Card(
                         margin: const EdgeInsets.only(bottom: 8),
                         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
