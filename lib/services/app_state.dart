@@ -257,13 +257,13 @@ class AppState with ChangeNotifier {
     if (isAdmin || !_isLoggedIn) {
       return _children;
     } else {
-      return _children.where((c) => c.parentEmail == _userEmail).toList();
+      return _children.where((c) => c.parentEmail.trim().toLowerCase() == _userEmail.trim().toLowerCase()).toList();
     }
   }
   List<Map<String, String>> get registeredParents => _registeredParents;
   String? get selectedChildId => _selectedChildId;
   List<FeedbackModel> get feedbacks => _feedbacks;
-  bool get isAdmin => _userEmail == 'admin@kalingakids.com' || _userEmail == 'admin@gmail.com';
+  bool get isAdmin => _userEmail.trim().toLowerCase() == 'admin@kalingakids.com' || _userEmail.trim().toLowerCase() == 'admin@gmail.com';
   String get userBarangay => _userBarangay;
 
   ChildModel? get selectedChild {
@@ -281,27 +281,28 @@ class AppState with ChangeNotifier {
   Future<bool> login(String email, String password) async {
     // Basic mock authentication simulating Facebook style login
     if (email.contains('@') && password.length >= 6) {
+      final cleanEmail = email.trim().toLowerCase();
       _isLoggedIn = true;
-      _userEmail = email;
+      _userEmail = cleanEmail;
 
-      final bool isLoggingInAsAdmin = email == 'admin@kalingakids.com' || email == 'admin@gmail.com';
+      final bool isLoggingInAsAdmin = cleanEmail == 'admin@kalingakids.com' || cleanEmail == 'admin@gmail.com';
 
       if (isLoggingInAsAdmin) {
         _userName = 'ADMIN';
         _userBarangay = 'Sabang';
       } else {
         // Look up parent's registered record to get their actual registered barangay and name
-        final parentIndex = _registeredParents.indexWhere((p) => p['email'] == email);
+        final parentIndex = _registeredParents.indexWhere((p) => p['email']?.trim().toLowerCase() == cleanEmail);
         if (parentIndex != -1) {
-          _userName = _registeredParents[parentIndex]['name'] ?? email.split('@')[0].toUpperCase();
+          _userName = _registeredParents[parentIndex]['name'] ?? cleanEmail.split('@')[0].toUpperCase();
           _userBarangay = _registeredParents[parentIndex]['barangay'] ?? 'Sabang';
         } else {
-          _userName = email.split('@')[0].toUpperCase();
+          _userName = cleanEmail.split('@')[0].toUpperCase();
           _userBarangay = 'Sabang';
           
           // Add them to registered parents list so they exist and don't get lost
           _registeredParents.add({
-            'email': email,
+            'email': cleanEmail,
             'name': _userName,
             'barangay': _userBarangay,
           });
@@ -381,9 +382,10 @@ class AppState with ChangeNotifier {
   }
 
   Future<void> register(String name, String email, String password, String barangay) async {
+    final cleanEmail = email.trim().toLowerCase();
     _isLoggedIn = true;
     _userName = name;
-    _userEmail = email;
+    _userEmail = cleanEmail;
     _userBarangay = barangay;
 
     await _prefs.setBool('isLoggedIn', true);
@@ -392,9 +394,9 @@ class AppState with ChangeNotifier {
     await _prefs.setString('userBarangay', _userBarangay);
 
     // Save to registered parents list
-    if (!_registeredParents.any((p) => p['email'] == email)) {
+    if (!_registeredParents.any((p) => p['email']?.trim().toLowerCase() == cleanEmail)) {
       _registeredParents.add({
-        'email': email,
+        'email': cleanEmail,
         'name': name,
         'barangay': barangay,
       });
@@ -468,7 +470,7 @@ class AppState with ChangeNotifier {
       bloodType: bloodType,
       growthHistory: [firstRecord],
       barangay: _userBarangay,
-      parentEmail: _userEmail.isEmpty ? 'magulang.demo@gmail.com' : _userEmail,
+      parentEmail: _userEmail.isEmpty ? 'magulang.demo@gmail.com' : _userEmail.trim().toLowerCase(),
     );
 
     _children.add(child);
