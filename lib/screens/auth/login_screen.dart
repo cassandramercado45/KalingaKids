@@ -39,7 +39,7 @@ class _LoginScreenState extends State<LoginScreen> {
           if (mounted) {
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('Ang email na ito ay walang admin/BHW access rights.'),
+                content: Text('Ang email na ito ay walang admin access rights.'),
                 backgroundColor: Colors.redAccent,
               ),
             );
@@ -146,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 16.0),
-                              child: Text('BHW / Admin', style: TextStyle(fontWeight: FontWeight.bold)),
+                              child: Text('Admin', style: TextStyle(fontWeight: FontWeight.bold)),
                             ),
                           ],
                         ),
