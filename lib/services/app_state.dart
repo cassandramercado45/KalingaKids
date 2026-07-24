@@ -81,11 +81,34 @@ class AppState with ChangeNotifier {
   Future<void> _initPrefs() async {
     _prefs = await SharedPreferences.getInstance();
     
-    // Load Login Session
-    _isLoggedIn = _prefs.getBool('isLoggedIn') ?? false;
-    _userName = _prefs.getString('userName') ?? '';
-    _userEmail = _prefs.getString('userEmail') ?? '';
-    _userBarangay = _prefs.getString('userBarangay') ?? 'Sabang';
+    // One-time clear of dummy/mock data to start fresh as requested by user
+    if (!(_prefs.getBool('didClearDummyDataV3') ?? false)) {
+      await _prefs.remove('childrenList');
+      await _prefs.remove('registeredParents');
+      await _prefs.remove('completedVaccines');
+      await _prefs.remove('completedMilestones');
+      await _prefs.remove('selectedChildId');
+      
+      // Reset session state
+      await _prefs.setBool('isLoggedIn', false);
+      await _prefs.remove('userName');
+      await _prefs.remove('userEmail');
+      await _prefs.remove('userBarangay');
+      
+      _isLoggedIn = false;
+      _userName = '';
+      _userEmail = '';
+      _userBarangay = 'Sabang';
+      _selectedChildId = null;
+
+      await _prefs.setBool('didClearDummyDataV3', true);
+    } else {
+      // Load Login Session
+      _isLoggedIn = _prefs.getBool('isLoggedIn') ?? false;
+      _userName = _prefs.getString('userName') ?? '';
+      _userEmail = _prefs.getString('userEmail') ?? '';
+      _userBarangay = _prefs.getString('userBarangay') ?? 'Sabang';
+    }
 
     // Load Dark Mode Preference
     _isDarkMode = _prefs.getBool('isDarkMode') ?? false;
@@ -112,68 +135,7 @@ class AppState with ChangeNotifier {
       _children = [];
     }
 
-    if (_children.isEmpty) {
-      _children = [
-        ChildModel(
-          id: 'c1',
-          name: 'Carmina Mercado',
-          birthDate: DateTime.now().subtract(const Duration(days: 425)), // 1 year, 2 months
-          gender: 'Babae',
-          bloodType: 'O+',
-          barangay: 'Sabang',
-          parentEmail: 'carmelita.mercado@gmail.com',
-          growthHistory: [
-            GrowthRecord(
-              id: 'gr1',
-              date: DateTime.now().subtract(const Duration(days: 400)),
-              height: 74.0,
-              weight: 9.2,
-            ),
-            GrowthRecord(
-              id: 'gr2',
-              date: DateTime.now().subtract(const Duration(days: 200)),
-              height: 78.5,
-              weight: 10.5,
-            ),
-          ],
-        ),
-        ChildModel(
-          id: 'c2',
-          name: 'Juan Dela Cruz',
-          birthDate: DateTime.now().subtract(const Duration(days: 1280)), // 3 years, 6 months
-          gender: 'Lalaki',
-          bloodType: 'A+',
-          barangay: 'Bigain I',
-          parentEmail: 'maria.delacruz@gmail.com',
-          growthHistory: [
-            GrowthRecord(
-              id: 'gr3',
-              date: DateTime.now().subtract(const Duration(days: 100)),
-              height: 96.0,
-              weight: 14.2,
-            ),
-          ],
-        ),
-        ChildModel(
-          id: 'c3',
-          name: 'Maria Santos',
-          birthDate: DateTime.now().subtract(const Duration(days: 2920)), // 8 years
-          gender: 'Babae',
-          bloodType: 'B+',
-          barangay: 'Bigain II',
-          parentEmail: 'elena.santos@gmail.com',
-          growthHistory: [
-            GrowthRecord(
-              id: 'gr4',
-              date: DateTime.now().subtract(const Duration(days: 50)),
-              height: 125.0,
-              weight: 24.5,
-            ),
-          ],
-        ),
-      ];
-      await _saveChildrenToPrefs();
-    }
+    // Removed default children pre-population to prevent confusion
 
     _selectedChildId = _prefs.getString('selectedChildId');
     if (_children.isNotEmpty) {
@@ -283,14 +245,7 @@ class AppState with ChangeNotifier {
       _registeredParents = [];
     }
 
-    if (_registeredParents.isEmpty) {
-      _registeredParents = [
-        {'email': 'carmelita.mercado@gmail.com', 'name': 'Carmelita Mercado', 'barangay': 'Sabang'},
-        {'email': 'maria.delacruz@gmail.com', 'name': 'Maria Dela Cruz', 'barangay': 'Bigain I'},
-        {'email': 'elena.santos@gmail.com', 'name': 'Elena Santos', 'barangay': 'Bigain II'},
-      ];
-      await _saveParentsToPrefs();
-    }
+    // Removed default parents pre-population to prevent confusion
   }
 
   // Getters
@@ -327,14 +282,30 @@ class AppState with ChangeNotifier {
     // Basic mock authentication simulating Facebook style login
     if (email.contains('@') && password.length >= 6) {
       _isLoggedIn = true;
-      _userName = email.split('@')[0].toUpperCase();
       _userEmail = email;
+
+      // Look up parent's registered record to get their actual registered barangay and name
+      final parentIndex = _registeredParents.indexWhere((p) => p['email'] == email);
+      if (parentIndex != -1) {
+        _userName = _registeredParents[parentIndex]['name'] ?? email.split('@')[0].toUpperCase();
+        _userBarangay = _registeredParents[parentIndex]['barangay'] ?? 'Sabang';
+      } else {
+        _userName = email.split('@')[0].toUpperCase();
+        _userBarangay = 'Sabang';
+        
+        // Add them to registered parents list so they exist and don't get lost
+        _registeredParents.add({
+          'email': email,
+          'name': _userName,
+          'barangay': _userBarangay,
+        });
+        await _saveParentsToPrefs();
+      }
       
       await _prefs.setBool('isLoggedIn', true);
       await _prefs.setString('userName', _userName);
       await _prefs.setString('userEmail', _userEmail);
-      
-      _userBarangay = _prefs.getString('userBarangay') ?? 'Sabang';
+      await _prefs.setString('userBarangay', _userBarangay);
 
       // Reload database from prefs
       await _loadUserDataFromPrefs();
