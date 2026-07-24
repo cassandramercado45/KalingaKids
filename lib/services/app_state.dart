@@ -194,11 +194,23 @@ class AppState with ChangeNotifier {
         _completedVaccines = {};
       }
     } else {
-      _completedVaccines = {
-        'c1': ['v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8', 'v9', 'v10', 'v11', 'v12', 'v13'],
-        'c2': ['v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8', 'v9', 'v10', 'v11', 'v12', 'v13', 'v14'],
-        'c3': ['v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8', 'v9', 'v10', 'v11', 'v12', 'v13', 'v14', 'v15', 'v16'],
-      };
+      _completedVaccines = {};
+    }
+
+    // Ensure default children have their pre-populated vaccines
+    bool changedVaccines = false;
+    final defaultVaccines = {
+      'c1': ['v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8', 'v9', 'v10', 'v11', 'v12', 'v13'],
+      'c2': ['v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8', 'v9', 'v10', 'v11', 'v12', 'v13', 'v14'],
+      'c3': ['v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8', 'v9', 'v10', 'v11', 'v12', 'v13', 'v14', 'v15', 'v16'],
+    };
+    for (var entry in defaultVaccines.entries) {
+      if (!_completedVaccines.containsKey(entry.key)) {
+        _completedVaccines[entry.key] = entry.value;
+        changedVaccines = true;
+      }
+    }
+    if (changedVaccines) {
       await _prefs.setString('completedVaccines', jsonEncode(_completedVaccines));
     }
 
@@ -212,11 +224,23 @@ class AppState with ChangeNotifier {
         _completedMilestones = {};
       }
     } else {
-      _completedMilestones = {
-        'c1': ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8'],
-        'c2': ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8', 'm9', 'm10', 'm11', 'm12', 'm13', 'm14', 'm15', 'm16', 'm17', 'm18', 'm19', 'm20'],
-        'c3': List.generate(37, (i) => 'm${i + 1}'),
-      };
+      _completedMilestones = {};
+    }
+
+    // Ensure default children have their pre-populated milestones
+    bool changedMilestones = false;
+    final defaultMilestones = {
+      'c1': ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8'],
+      'c2': ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8', 'm9', 'm10', 'm11', 'm12', 'm13', 'm14', 'm15', 'm16', 'm17', 'm18', 'm19', 'm20'],
+      'c3': List.generate(37, (i) => 'm${i + 1}'),
+    };
+    for (var entry in defaultMilestones.entries) {
+      if (!_completedMilestones.containsKey(entry.key)) {
+        _completedMilestones[entry.key] = entry.value;
+        changedMilestones = true;
+      }
+    }
+    if (changedMilestones) {
       await _prefs.setString('completedMilestones', jsonEncode(_completedMilestones));
     }
 
