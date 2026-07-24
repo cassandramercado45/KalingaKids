@@ -82,7 +82,7 @@ class AppState with ChangeNotifier {
     _prefs = await SharedPreferences.getInstance();
     
     // One-time clear of dummy/mock data to start fresh as requested by user
-    if (!(_prefs.getBool('didClearDummyDataV3') ?? false)) {
+    if (!(_prefs.getBool('didClearDummyDataV4') ?? false)) {
       await _prefs.remove('childrenList');
       await _prefs.remove('registeredParents');
       await _prefs.remove('completedVaccines');
@@ -101,7 +101,7 @@ class AppState with ChangeNotifier {
       _userBarangay = 'Sabang';
       _selectedChildId = null;
 
-      await _prefs.setBool('didClearDummyDataV3', true);
+      await _prefs.setBool('didClearDummyDataV4', true);
     } else {
       // Load Login Session
       _isLoggedIn = _prefs.getBool('isLoggedIn') ?? false;
@@ -284,22 +284,29 @@ class AppState with ChangeNotifier {
       _isLoggedIn = true;
       _userEmail = email;
 
-      // Look up parent's registered record to get their actual registered barangay and name
-      final parentIndex = _registeredParents.indexWhere((p) => p['email'] == email);
-      if (parentIndex != -1) {
-        _userName = _registeredParents[parentIndex]['name'] ?? email.split('@')[0].toUpperCase();
-        _userBarangay = _registeredParents[parentIndex]['barangay'] ?? 'Sabang';
-      } else {
-        _userName = email.split('@')[0].toUpperCase();
+      final bool isLoggingInAsAdmin = email == 'admin@kalingakids.com' || email == 'admin@gmail.com';
+
+      if (isLoggingInAsAdmin) {
+        _userName = 'ADMIN';
         _userBarangay = 'Sabang';
-        
-        // Add them to registered parents list so they exist and don't get lost
-        _registeredParents.add({
-          'email': email,
-          'name': _userName,
-          'barangay': _userBarangay,
-        });
-        await _saveParentsToPrefs();
+      } else {
+        // Look up parent's registered record to get their actual registered barangay and name
+        final parentIndex = _registeredParents.indexWhere((p) => p['email'] == email);
+        if (parentIndex != -1) {
+          _userName = _registeredParents[parentIndex]['name'] ?? email.split('@')[0].toUpperCase();
+          _userBarangay = _registeredParents[parentIndex]['barangay'] ?? 'Sabang';
+        } else {
+          _userName = email.split('@')[0].toUpperCase();
+          _userBarangay = 'Sabang';
+          
+          // Add them to registered parents list so they exist and don't get lost
+          _registeredParents.add({
+            'email': email,
+            'name': _userName,
+            'barangay': _userBarangay,
+          });
+          await _saveParentsToPrefs();
+        }
       }
       
       await _prefs.setBool('isLoggedIn', true);
