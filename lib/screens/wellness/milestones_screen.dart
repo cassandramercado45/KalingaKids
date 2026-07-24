@@ -50,8 +50,17 @@ class _MilestonesScreenState extends State<MilestonesScreen> {
           : Scaffold(
               appBar: AppBar(
                 title: const Text('Mga Milestones sa Pag-unlad'),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.refresh),
+                    tooltip: 'I-refresh ang data',
+                    onPressed: () async {
+                      await appState.refreshData();
+                    },
+                  ),
+                ],
               ),
-        body: Column(
+              body: Column(
           children: [
             // Age selection bar
             Container(

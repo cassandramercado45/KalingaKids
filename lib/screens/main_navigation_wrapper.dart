@@ -68,6 +68,21 @@ class _MainNavigationWrapperState extends State<MainNavigationWrapper> {
         foregroundColor: Colors.white,
         actions: [
           IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'I-refresh ang data',
+            onPressed: () async {
+              await appState.refreshData();
+              if (context.mounted) {
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(
+                    content: Text('Matagumpay na na-refresh ang data!'),
+                    duration: Duration(seconds: 1),
+                  ),
+                );
+              }
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.logout),
             tooltip: 'Mag-logout',
             onPressed: () async {

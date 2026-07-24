@@ -16,6 +16,11 @@ class ChildSelectorOverlay extends StatelessWidget {
     // If no child is selected, prompt selection
     if (appState.selectedChild == null) {
       return Scaffold(
+        appBar: AppBar(
+          title: const Text('Pumili ng Bata'),
+          backgroundColor: theme.colorScheme.primary,
+          foregroundColor: Colors.white,
+        ),
         body: Center(
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 500),

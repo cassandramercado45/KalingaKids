@@ -55,9 +55,18 @@ class _GrowthMonitoringScreenState extends State<GrowthMonitoringScreen> {
           ? const SizedBox()
           : Scaffold(
               appBar: AppBar(
-          title: const Text('Pagsubaybay sa Paglaki'),
-        ),
-        body: SingleChildScrollView(
+                title: const Text('Pagsubaybay sa Paglaki'),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.refresh),
+                    tooltip: 'I-refresh ang data',
+                    onPressed: () async {
+                      await appState.refreshData();
+                    },
+                  ),
+                ],
+              ),
+              body: SingleChildScrollView(
           padding: const EdgeInsets.all(24.0),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,

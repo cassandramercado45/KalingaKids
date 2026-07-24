@@ -28,6 +28,15 @@ class BarangayDetailScreen extends StatelessWidget {
         title: Text('Brgy. $barangayName'),
         backgroundColor: theme.colorScheme.primary,
         foregroundColor: Colors.white,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            tooltip: 'I-refresh ang data',
+            onPressed: () async {
+              await appState.refreshData();
+            },
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24.0),

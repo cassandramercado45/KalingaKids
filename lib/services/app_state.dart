@@ -569,4 +569,12 @@ class AppState with ChangeNotifier {
     await _prefs.setString('completedMilestones', jsonEncode(_completedMilestones));
     notifyListeners();
   }
+
+  Future<void> refreshData() async {
+    _isInitialized = false;
+    notifyListeners();
+    await _loadUserDataFromPrefs();
+    _isInitialized = true;
+    notifyListeners();
+  }
 }

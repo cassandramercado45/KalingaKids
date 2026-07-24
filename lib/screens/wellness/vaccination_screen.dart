@@ -59,8 +59,17 @@ class VaccinationScreen extends StatelessWidget {
           : Scaffold(
               appBar: AppBar(
                 title: const Text('Gabay at Timeline ng Bakuna'),
+                actions: [
+                  IconButton(
+                    icon: const Icon(Icons.refresh),
+                    tooltip: 'I-refresh ang data',
+                    onPressed: () async {
+                      await appState.refreshData();
+                    },
+                  ),
+                ],
               ),
-        body: groupedVaccines.isEmpty
+              body: groupedVaccines.isEmpty
             ? Center(
                 child: Padding(
                   padding: const EdgeInsets.all(24.0),
