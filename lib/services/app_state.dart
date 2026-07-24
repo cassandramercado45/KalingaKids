@@ -194,7 +194,12 @@ class AppState with ChangeNotifier {
         _completedVaccines = {};
       }
     } else {
-      _completedVaccines = {};
+      _completedVaccines = {
+        'c1': ['v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8', 'v9', 'v10', 'v11', 'v12', 'v13'],
+        'c2': ['v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8', 'v9', 'v10', 'v11', 'v12', 'v13', 'v14'],
+        'c3': ['v1', 'v2', 'v3', 'v4', 'v5', 'v6', 'v7', 'v8', 'v9', 'v10', 'v11', 'v12', 'v13', 'v14', 'v15', 'v16'],
+      };
+      await _prefs.setString('completedVaccines', jsonEncode(_completedVaccines));
     }
 
     // Load Completed Milestones
@@ -207,7 +212,12 @@ class AppState with ChangeNotifier {
         _completedMilestones = {};
       }
     } else {
-      _completedMilestones = {};
+      _completedMilestones = {
+        'c1': ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8'],
+        'c2': ['m1', 'm2', 'm3', 'm4', 'm5', 'm6', 'm7', 'm8', 'm9', 'm10', 'm11', 'm12', 'm13', 'm14', 'm15', 'm16', 'm17', 'm18', 'm19', 'm20'],
+        'c3': List.generate(37, (i) => 'm${i + 1}'),
+      };
+      await _prefs.setString('completedMilestones', jsonEncode(_completedMilestones));
     }
 
     // Load Feedback Messages
