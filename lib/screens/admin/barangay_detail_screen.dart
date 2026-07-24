@@ -297,9 +297,17 @@ class BarangayDetailScreen extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label, style: const TextStyle(fontSize: 13)),
-            Text('$completed / $total (${(percent * 100).toInt()}%)',
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13)),
+            Expanded(
+              child: Text(
+                label,
+                style: const TextStyle(fontSize: 13),
+              ),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              '$completed / $total (${(percent * 100).toInt()}%)',
+              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13),
+            ),
           ],
         ),
         const SizedBox(height: 6),
