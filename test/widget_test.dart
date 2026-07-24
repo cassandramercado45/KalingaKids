@@ -95,8 +95,8 @@ void main() {
     // Simulate AppState initialization
     await Future.delayed(const Duration(milliseconds: 100));
 
-    expect(appState.children.length, 0);
-    expect(appState.selectedChild == null, true);
+    expect(appState.children.length, 3);
+    expect(appState.selectedChild != null, true);
 
     // Add a child
     await appState.addChild(
@@ -108,7 +108,7 @@ void main() {
       12.5,
     );
 
-    expect(appState.children.length, 1);
+    expect(appState.children.length, 4);
     expect(appState.children.last.name, 'Juan dela Cruz');
     expect(appState.children.last.gender, 'Lalaki');
     expect(appState.children.last.bloodType, 'O+');

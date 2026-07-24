@@ -101,14 +101,75 @@ class AppState with ChangeNotifier {
       try {
         final decoded = jsonDecode(childrenJson) as List;
         _children = decoded.map((e) => ChildModel.fromJson(Map<String, dynamic>.from(e as Map))).toList();
-        // Remove default mock children for clean presentation
-        _children.removeWhere((c) => c.id == 'c1' || c.id == 'c2' || c.id == 'c3');
       } catch (err, stack) {
         debugPrint('Error loading children from SharedPreferences: $err\n$stack');
         _children = [];
       }
     } else {
       _children = [];
+    }
+
+    if (_children.isEmpty) {
+      _children = [
+        ChildModel(
+          id: 'c1',
+          name: 'Carmina Mercado',
+          birthDate: DateTime.now().subtract(const Duration(days: 425)), // 1 year, 2 months
+          gender: 'Babae',
+          bloodType: 'O+',
+          barangay: 'Sabang',
+          parentEmail: 'carmelita.mercado@gmail.com',
+          growthHistory: [
+            GrowthRecord(
+              id: 'gr1',
+              date: DateTime.now().subtract(const Duration(days: 400)),
+              height: 74.0,
+              weight: 9.2,
+            ),
+            GrowthRecord(
+              id: 'gr2',
+              date: DateTime.now().subtract(const Duration(days: 200)),
+              height: 78.5,
+              weight: 10.5,
+            ),
+          ],
+        ),
+        ChildModel(
+          id: 'c2',
+          name: 'Juan Dela Cruz',
+          birthDate: DateTime.now().subtract(const Duration(days: 1280)), // 3 years, 6 months
+          gender: 'Lalaki',
+          bloodType: 'A+',
+          barangay: 'Bigain I',
+          parentEmail: 'maria.delacruz@gmail.com',
+          growthHistory: [
+            GrowthRecord(
+              id: 'gr3',
+              date: DateTime.now().subtract(const Duration(days: 100)),
+              height: 96.0,
+              weight: 14.2,
+            ),
+          ],
+        ),
+        ChildModel(
+          id: 'c3',
+          name: 'Maria Santos',
+          birthDate: DateTime.now().subtract(const Duration(days: 2920)), // 8 years
+          gender: 'Babae',
+          bloodType: 'B+',
+          barangay: 'Bigain II',
+          parentEmail: 'elena.santos@gmail.com',
+          growthHistory: [
+            GrowthRecord(
+              id: 'gr4',
+              date: DateTime.now().subtract(const Duration(days: 50)),
+              height: 125.0,
+              weight: 24.5,
+            ),
+          ],
+        ),
+      ];
+      await _saveChildrenToPrefs();
     }
 
     _selectedChildId = _prefs.getString('selectedChildId');
